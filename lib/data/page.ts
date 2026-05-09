@@ -31,14 +31,14 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
 }
 
 export async function createPage(
-  data: Omit<Page, "id" | "createdAt" | "updatedAt">
+  data: Prisma.PageUncheckedCreateInput
 ): Promise<Page> {
   return await prisma.page.create({ data });
 }
 
 export async function updatePage(
   id: string,
-  data: Partial<Omit<Page, "id" | "createdAt" | "updatedAt">>
+  data: Prisma.PageUncheckedUpdateInput
 ): Promise<Page> {
   return await prisma.page.update({ where: { id }, data });
 }

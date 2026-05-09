@@ -23,6 +23,7 @@ model User {
   username      String?   @unique
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  mustChangePassword Boolean @default(false)
   
   accounts      Account[]
   sessions      Session[]
@@ -127,6 +128,8 @@ model Page {
   featured    Boolean   @default(false)
   layout      String    @default("default")
   customCss   String?
+  sourceType  String    @default("manual")
+  sourceRef   String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -179,6 +182,7 @@ model StaffMember {
   sortOrder         Int         @default(0)
   featured          Boolean     @default(false)
   isActive          Boolean     @default(true)
+  repos             StaffRepo[]
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
 
@@ -221,9 +225,45 @@ model SiteConfig {
   logoAlt          String   @default("Logo")
   faviconUrl       String   @default("")
   showLogoText     Boolean  @default(true)
+  
+  // Theme & Navigation (V1 compatibility)
+  navStyle         String   @default("fixed")
+  navBgColor       String   @default("#0ea5e9")
+  navTextColor     String   @default("#ffffff")
+  showHero         Boolean  @default(true)
+  heroStyle        String   @default("centered")
+  heroHeading      String   @default("Welcome to your site")
+  heroSubheading   String   @default("Use the CMS to manage reusable content for any frontend application")
+  heroBgColor      String   @default("#f0f9ff")
+  heroTextColor    String   @default("#0f172a")
+  heroImageUrl     String   @default("")
+  heroBtnLabel     String   @default("Explore content")
+  heroBtnColor     String   @default("#f59e0b")
+  
   primaryColor     String   @default("#6366f1")
   secondaryColor   String   @default("#8b5cf6")
   accentColor      String   @default("#f59e0b")
+  bgColor          String   @default("#f8fafc")
+  textColor        String   @default("#1e293b")
+  fontFamily       String   @default("Inter")
+  layoutStyle      String   @default("grid")
+  
+  showSidebar      Boolean  @default(false)
+  sidebarPosition  String   @default("left")
+  
+  footerCopyright  String   @default("© 2024 My Site")
+  footerBgColor    String   @default("#1e293b")
+  footerTextColor  String   @default("#94a3b8")
+  
+  // Social & Communication
+  discordUrl       String   @default("")
+  githubUrl        String   @default("")
+  twitterUrl       String   @default("")
+  linkedinUrl      String   @default("")
+  privacyUrl       String   @default("")
+  termsUrl         String   @default("")
+  cookiePolicyUrl  String   @default("")
+  
   darkMode         Boolean  @default(false)
   socialLinks      Json     @default("{}")
   seoSettings      Json     @default("{}")
@@ -310,4 +350,61 @@ model AuditLog {
   @@index([action])
   @@index([resource])
   @@index([createdAt])
+}
+
+model SecretStore {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  provider  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AiAutoPostCampaign {
+  id                 String          @id @default(cuid())
+  name               String
+  provider           String          @default("google-ai-studio")
+  model              String          @default("gemini-2.5-flash")
+  topic              String
+  systemPrompt       String          @default("")
+  slugPrefix         String
+  timezone           String          @default("Asia/Bangkok")
+  scheduleType       String          @default("daily")
+  scheduleTime       String          @default("09:00")
+  publishAsPublished Boolean         @default(false)
+  isEnabled          Boolean         @default(false)
+  lastRunAt          DateTime?
+  nextRunAt          DateTime?
+  lastResult         String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  runs               AiAutoPostRun[]
+}
+
+model AiAutoPostRun {
+  id         String             @id @default(cuid())
+  campaignId String
+  campaign   AiAutoPostCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  title      String?
+  slug       String?
+  status     String             @default("queued")
+  prompt     String             @default("")
+  output     String             @default("")
+  error      String?
+  ranAt      DateTime           @default(now())
+
+  @@index([campaignId, ranAt])
+}
+
+model StaffRepo {
+  id            String      @id @default(uuid())
+  name          String
+  demoUrl       String?
+  sourceUrl     String?
+  landingUrl    String?
+  staffMemberId String
+  staffMember   StaffMember @relation(fields: [staffMemberId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }

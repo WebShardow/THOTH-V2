@@ -30,7 +30,7 @@ export async function getSiteConfig(): Promise<SiteConfig> {
 }
 
 export async function updateSiteConfig(
-  data: Partial<Omit<SiteConfig, "id" | "createdAt" | "updatedAt">>
+  data: any
 ): Promise<SiteConfig> {
   const config = await prisma.siteConfig.upsert({
     where: { id: "default" },

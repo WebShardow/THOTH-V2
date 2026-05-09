@@ -56,7 +56,7 @@ export async function getMenuItemsWithChildren(): Promise<MenuItemWithChildren[]
 }
 
 export async function createMenuItem(
-  data: Omit<MenuItem, "id" | "createdAt" | "updatedAt" | "children">
+  data: Omit<MenuItem, "id" | "createdAt" | "updatedAt" | "children" | "order">
 ): Promise<MenuItem> {
   const last = await prisma.menuItem.findFirst({
     where: { parentId: data.parentId || null },
